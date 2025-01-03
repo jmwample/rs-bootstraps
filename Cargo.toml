@@ -3,6 +3,7 @@
 
 members = [
     "crates/bootstraps",
+    "crates/bootstraps2",
     "crates/config-types",
     "crates/config-user",
 ]

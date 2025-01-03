@@ -22,11 +22,11 @@ Some extra things that I thought were nice:
 cargo test -p bootstraps -- --nocapture
 
 # Provide an absolute path to an alternate configuration file by environment variable.
-NYMVPN_HOSTFILE_CONFIG=/tmp/nymvpn/nymvpn-config-alt.toml cargo test -p bootstraps -- --nocapture
+NYMVPN_CONFIG_PATH=/tmp/nymvpn/nymvpn-config-alt.toml cargo test -p bootstraps -- --nocapture
 
 # Provide a relative path to an alternate configuration file by environment variable.
 # Relative paths are taken relative to the _WORKSPACE ROOT_
-NYMVPN_HOSTFILE_CONFIG=nymvpn-config-alt.toml cargo test -p bootstraps -- --nocapture
+NYMVPN_CONFIG_PATH=nymvpn-config-alt.toml cargo test -p bootstraps -- --nocapture
 
 # Compile and run tests WITHOUT using the bootstrap config file. Build using a static constant
 # configuration hard-coded in the source.

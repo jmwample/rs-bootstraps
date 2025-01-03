@@ -1,30 +1,39 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize)]
-pub struct Config {
+#[derive(Deserialize, Serialize, Clone)]
+pub struct BaseConfig {
     pub ip: String,
     pub port: Option<u16>,
     pub keys: Keys,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Keys {
     pub github: String,
     pub travis: Option<String>,
 }
 
-impl std::str::FromStr for Config {
+impl std::str::FromStr for BaseConfig {
     type Err = toml::de::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         toml::from_str(s)
     }
 }
 
-impl ToString for Config {
+impl ToString for BaseConfig {
     fn to_string(&self) -> String {
         toml::to_string(self).unwrap()
     }
 }
+
+pub const DEFAULT_CONFIG_TOML_STR: &str = r#"
+ip = "192.168.1.1"
+port = 4433
+
+[keys]
+github = "00000000000000000"
+travis = "11111111111111111"
+"#;
 
 #[cfg(test)]
 mod tests {
@@ -40,13 +49,13 @@ travis = "yyyyyyyyyyyyyyyyy"
 
     #[test]
     fn deserialize() {
-        let config: Config = toml::from_str(TEST_CONFIG).unwrap();
+        let config: BaseConfig = toml::from_str(TEST_CONFIG).unwrap();
         assert_eq!(config.ip, "127.0.0.1");
         assert_eq!(config.port, None);
         assert_eq!(config.keys.github, "xxxxxxxxxxxxxxxxx");
         assert_eq!(config.keys.travis.as_ref().unwrap(), "yyyyyyyyyyyyyyyyy");
 
-        let config = Config::from_str(TEST_CONFIG).unwrap();
+        let config = BaseConfig::from_str(TEST_CONFIG).unwrap();
         assert_eq!(config.ip, "127.0.0.1");
         assert_eq!(config.port, None);
         assert_eq!(config.keys.github, "xxxxxxxxxxxxxxxxx");
@@ -55,7 +64,7 @@ travis = "yyyyyyyyyyyyyyyyy"
 
     #[test]
     fn serialize() {
-        let config = Config {
+        let config = BaseConfig {
             ip: "127.0.0.1".to_string(),
             port: None,
             keys: Keys {
