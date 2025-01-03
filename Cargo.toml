@@ -1,0 +1,10 @@
+
+[workspace]
+
+members = [
+    "crates/bootstraps",
+    "crates/config-types",
+    "crates/config-user",
+]
+
+resolver = "2"

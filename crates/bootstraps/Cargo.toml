@@ -1,0 +1,14 @@
+[package]
+name = "bootstraps"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default=["pre-loaded"]
+pre-loaded=[]
+
+[build-dependencies]
+config-types = {path="../config-types"}
+
+[dependencies]
+config-types = {path="../config-types"}
