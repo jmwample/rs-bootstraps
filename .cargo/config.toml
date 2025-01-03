@@ -1,0 +1,5 @@
+
+[env]
+# provides a an environment variable contsining the path to the workspace root which is useful
+# during build.rs if we are parsing config files with paths relative to the workspace root.
+CARGO_WORKSPACE_DIR = { value = "", relative = true }
