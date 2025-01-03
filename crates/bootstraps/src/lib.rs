@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-#[cfg(feature = "pre-loaded")]
+#[cfg(feature = "enable-cfg")]
 include!(concat!(env!("OUT_DIR"), "/obfuscated.rs"));
 
 pub struct Config(config_types::Config);
@@ -15,15 +15,25 @@ github = "00000000000000000"
 travis = "11111111111111111"
 "#;
 
+impl AsRef<config_types::Config> for Config {
+    fn as_ref(&self) -> &config_types::Config {
+        &self.0
+    }
+}
+
 impl Default for Config {
     fn default() -> Self {
-        #[cfg(feature = "pre-loaded")]
+        #[cfg(feature = "require-cfg")]
+        let config_str = BOOTSTRAP_CONFIG_STR;
+
+        #[cfg(all(not(feature = "require-cfg"), feature = "enable-cfg"))]
         let config_str = if !BOOTSTRAP_CONFIG_STR.is_empty() {
             BOOTSTRAP_CONFIG_STR
         } else {
             DEFAULT_CONFIG_STR
         };
-        #[cfg(not(feature = "pre-loaded"))]
+
+        #[cfg(not(feature = "enable-cfg"))]
         let config_str = DEFAULT_CONFIG_STR;
 
         let config =
@@ -39,18 +49,18 @@ mod tests {
 
     #[test]
     fn it_works() {
-        #[cfg(feature = "pre-loaded")]
+        #[cfg(feature = "enable-cfg")]
         {
             println!("{:?}", BOOTSTRAP_CONFIG_STR);
             let c = Config::default();
-            let config = c.0;
+            let config = c.as_ref();
             assert_eq!(config.ip, "127.0.0.1");
             assert_eq!(config.port, None);
             assert_eq!(config.keys.github, "xxxxxxxxxxxxxxxxx");
             assert_eq!(config.keys.travis.as_ref().unwrap(), "yyyyyyyyyyyyyyyyy");
         }
 
-        #[cfg(not(feature = "pre-loaded"))]
+        #[cfg(not(feature = "enable-cfg"))]
         {
             let c = Config::default();
             let config = c.0;

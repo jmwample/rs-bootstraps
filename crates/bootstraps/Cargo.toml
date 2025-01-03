@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default=["pre-loaded"]
-pre-loaded=[]
+default=["enable-cfg"]
+enable-cfg=[]
+require-cfg=["enable-cfg"]
 
 [build-dependencies]
 config-types = {path="../config-types"}

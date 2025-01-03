@@ -9,9 +9,9 @@ Some extra things that I thought were nice:
 - [x] Relative paths for the config are adjusted to be relative to the workspace root at compile time.
     - absolute paths are left as is
 - [x] Disable / Enable / Require `build.rs` bootstrap config parsing with a feature
-	- [ ] when disabled, if a config is provided it is ignored in favor of the in-source default.
+	- [x] when disabled, if a config is provided it is ignored in favor of the in-source default.
 	- [x] when enabled, if no config is provided a warning is printed during compilation and the in-source default is used
-	- [ ] when required, if no config is provided compilation fails
+	- [x] when required, if no config is provided compilation fails
 
 ## Usage
 
