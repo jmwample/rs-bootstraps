@@ -30,6 +30,7 @@ name = "config-user"
 version = "0.1.0"
 dependencies = [
  "bootstraps",
+ "bootstraps2",
 ]
 
 [[package]]

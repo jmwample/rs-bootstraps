@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 
 bootstraps = {path="../bootstraps"}
+bootstraps2 = {path="../bootstraps2"}

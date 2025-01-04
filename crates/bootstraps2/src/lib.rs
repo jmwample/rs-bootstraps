@@ -1,9 +1,10 @@
+use config_types::BaseConfig;
 use std::str::FromStr;
 
 #[cfg(feature = "enable-cfg")]
 include!(concat!(env!("OUT_DIR"), "/obfuscated.rs"));
 
-pub struct Config(config_types::Config);
+pub struct Config(BaseConfig);
 
 /// Default Configuration used if no bootstrap configuration file is provided at compile time.
 const DEFAULT_CONFIG_STR: &str = r#"
@@ -15,8 +16,8 @@ github = "00000000000000000"
 travis = "11111111111111111"
 "#;
 
-impl AsRef<config_types::Config> for Config {
-    fn as_ref(&self) -> &config_types::Config {
+impl AsRef<BaseConfig> for Config {
+    fn as_ref(&self) -> &BaseConfig {
         &self.0
     }
 }
@@ -36,8 +37,7 @@ impl Default for Config {
         #[cfg(not(feature = "enable-cfg"))]
         let config_str = DEFAULT_CONFIG_STR;
 
-        let config =
-            config_types::Config::from_str(config_str).expect("failed to parse default config");
+        let config = BaseConfig::from_str(config_str).expect("failed to parse default config");
 
         Self(config)
     }
