@@ -6,6 +6,7 @@ members = [
     "crates/bootstraps2",
     "crates/config-types",
     "crates/config-user",
+    "crates/hickory",
 ]
 
 resolver = "2"
