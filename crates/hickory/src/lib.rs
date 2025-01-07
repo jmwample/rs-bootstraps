@@ -78,6 +78,32 @@ impl std::error::Error for HickoryDnsSystemConfError {
     }
 }
 
+
+/// # To look into
+/// 
+/// ResolverConfig::ResolverOpts::server_ordering_strategy -> ServerOrderingStrategy
+/// ```
+///     server_ordering_strategy: ServerOrderingStrategy
+///         The server ordering strategy that the resolver should use.
+/// ```
+///  
+/// ResolverConfig::ResolverOpts::num_concurrent_reqs -> usize
+/// ```
+///     num_concurrent_reqs: usize
+///         Number of concurrent requests per query
+///         
+///         Where more than one nameserver is configured, this configures the resolver to send queries to a number of servers in parallel. Defaults to 2; 0 or 1 will execute requests serially.
+/// ```
+/// 
+/// ---
+/// 
+/// Is it possible to create a resolver type that collect and handles failures so a set resolver can send a wide spread and log failures (or capture to metrics)?
+/// 
+/// If none of the concurrent requests succeed does it move on and try again using the others in the set?
+/// 
+/// Why are rustls and openssl implementations broken?
+/// * is it me or is it the library?
+
 #[cfg(test)]
 mod tests {
     use super::*;
