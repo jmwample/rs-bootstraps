@@ -2,7 +2,7 @@
 [workspace]
 
 members = [
-    "crates/bootstraps",
+    "crates/bootstraps1",
     "crates/bootstraps2",
     "crates/config-types",
     "crates/config-user",

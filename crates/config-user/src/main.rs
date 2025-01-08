@@ -1,5 +1,5 @@
 fn main() {
-    let config = bootstraps::Config::default();
+    let config = bootstraps1::Config::default();
     println!("{}", config.as_ref().ip);
 
     let config2 = bootstraps2::Config::default();
