@@ -10,9 +10,7 @@ Some extra things that I thought were nice:
 - [x] Relative paths for the config are adjusted to be relative to the workspace root at compile time.
   - absolute paths are left alone
 
-
 ## Usage
-
 
 ```sh
 # Compile and run tests attempting to use the default path to the configuration file:
@@ -74,7 +72,6 @@ Note: config types is required to be a separate crate because it is required by 
 The generated code for this method looks like:
 
 ```rs
-
 impl Default for Config {
     fn default() -> Self {
         use config_types::Keys;
@@ -84,25 +81,23 @@ impl Default for Config {
         )
     }
 }
-
 ```
 
 When the `config-user` binary is built with only this strategy and looked at for a critical config info using `strings`:
 
-```
+```txt
 $ strings debug/config-user | grep "127\.0\.0\.1" -C 5
-	n'C
-	n'C
-	n'C
-	l-A
-	Wgu
+    n'C
+    n'C
+    n'C
+    l-A
+    Wgu
 127.0.0.1/home/jmwample/svc/jmwample/rs-bootstraps/target/debug/build/bootstraps2-064e47eac25b3893/out/default.rsxxxxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyy
 .gnu_debugaltlin
 connection reset
 assertion `left ) when slicing `entity not foundk
 host unreachable.debug_types.dwo{invalid syntax}
-invalid filenamerange end index 
-
+invalid filenamerange end index
 ```
 
 
@@ -140,18 +135,16 @@ ip = "127.0.0.1"
 [keys]
 github = "xxxxxxxxxxxxxxxxx"
 travis = "yyyyyyyyyyyyyyyyy""#;
-
 ```
 
 When the `config-user` binary is built with only this strategy and looked at for a critical config info using `strings` we can just plainly see the whole config in toml format.
 
-```
-
+```txt
 $ strings debug/config-user | grep "127\.0\.0\.1" -C 5
-	n'C
-	l-A
-	n'C
-	Wgu
+    n'C
+    l-A
+    n'C
+    Wgu
 gdb_load_rust_pretty_printers.py
 ip = "127.0.0.1"
 [keys]
@@ -159,5 +152,4 @@ github = "xxxxxxxxxxxxxxxxx"
 travis = "yyyyyyyyyyyyyyyyy"
 ip = "192.168.1.1"
 port = 4433
-
 ```
