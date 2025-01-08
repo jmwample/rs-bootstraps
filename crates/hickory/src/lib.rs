@@ -9,9 +9,8 @@ use std::sync::Arc;
 
 use hickory_resolver::{
     config::{LookupIpStrategy, ResolverConfig, ResolverOpts},
-    ResolveError,
     lookup_ip::LookupIpIntoIter,
-    TokioResolver,
+    ResolveError, TokioResolver,
 };
 use once_cell::sync::OnceCell;
 
@@ -78,32 +77,6 @@ impl std::error::Error for HickoryDnsSystemConfError {
     }
 }
 
-
-/// # To look into
-/// 
-/// ResolverConfig::ResolverOpts::server_ordering_strategy -> ServerOrderingStrategy
-/// ```
-///     server_ordering_strategy: ServerOrderingStrategy
-///         The server ordering strategy that the resolver should use.
-/// ```
-///  
-/// ResolverConfig::ResolverOpts::num_concurrent_reqs -> usize
-/// ```
-///     num_concurrent_reqs: usize
-///         Number of concurrent requests per query
-///         
-///         Where more than one nameserver is configured, this configures the resolver to send queries to a number of servers in parallel. Defaults to 2; 0 or 1 will execute requests serially.
-/// ```
-/// 
-/// ---
-/// 
-/// Is it possible to create a resolver type that collect and handles failures so a set resolver can send a wide spread and log failures (or capture to metrics)?
-/// 
-/// If none of the concurrent requests succeed does it move on and try again using the others in the set?
-/// 
-/// Why are rustls and openssl implementations broken?
-/// * is it me or is it the library?
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -114,16 +87,55 @@ mod tests {
 
     use hickory_resolver::Resolver;
 
+    #[tokio::test]
+    async fn dns_over_https() {
+        // Construct a new Resolver with default configuration options
+        let resolver = Resolver::tokio(ResolverConfig::quad9_https(), ResolverOpts::default());
+
+        // Lookup the IP addresses associated with a name.
+        let response = resolver.lookup_ip("www.example.com.").await.unwrap();
+
+        // There can be many addresses associated with the name,
+        //  this can return IPv4 and/or IPv6 addresses
+        let address = response.iter().next().expect("no addresses returned!");
+        let expected = [
+            IpAddr::V4(Ipv4Addr::new(93, 184, 215, 14)),
+            IpAddr::V6(Ipv6Addr::new(
+                0x2606, 0x2800, 0x21f, 0xcb07, 0x6820, 0x80da, 0xaf6b, 0x8b2c,
+            )),
+        ];
+        assert!(expected.contains(&address));
+    }
+
+    #[tokio::test]
+    async fn dns_over_h3() {
+        // Construct a new Resolver with default configuration options
+        let resolver = Resolver::tokio(ResolverConfig::google_h3(), ResolverOpts::default());
+
+        // Lookup the IP addresses associated with a name.
+        let response = resolver.lookup_ip("www.example.com.").await.unwrap();
+
+        // There can be many addresses associated with the name,
+        //  this can return IPv4 and/or IPv6 addresses
+        let address = response.iter().next().expect("no addresses returned!");
+        let expected = [
+            IpAddr::V4(Ipv4Addr::new(93, 184, 215, 14)),
+            IpAddr::V6(Ipv6Addr::new(
+                0x2606, 0x2800, 0x21f, 0xcb07, 0x6820, 0x80da, 0xaf6b, 0x8b2c,
+            )),
+        ];
+        assert!(expected.contains(&address));
+    }
 
     /// Attempt to use a set of resolvers using DNS-over-___ protocols
-    /// 
+    ///
     /// Performs a DNS lookup using a custom hickory-dns resolver. The resolver
     /// itself is the set combination of google, cloudflare, and quad9 combining DNS-over-TLS
     /// and traditional DNS over UDP. This test fails when the rustls implementation is used
     /// which means that we can't use DoH -- but in theory it could be include transparently.
     /// This test requires that the `hickory_resolver` crates has the `dns-over-native-tls`
     /// feature enabled.
-    /// 
+    ///
     /// The DNS-over-HTTPS implementation is also broken for `hickory_resolver@v0.25.0-alpha.4`.
     #[tokio::test]
     #[allow(non_snake_case)]
@@ -135,8 +147,7 @@ mod tests {
         let config = ResolverConfig::from_parts(None, Vec::new(), name_servers);
 
         // Construct a new Resolver with default configuration options
-        let resolver =
-            Resolver::tokio(config, ResolverOpts::default());
+        let resolver = Resolver::tokio(config, ResolverOpts::default());
 
         // Lookup the IP addresses associated with a name.
         let response = resolver.lookup_ip("www.example.com.").await.unwrap();
@@ -157,12 +168,12 @@ mod tests {
     }
 
     /// Attempt to use a set of resolvers using DNS-over-TLS
-    /// 
+    ///
     /// Performs a DNS lookup using a custom hickory-dns resolver. The resolver
     /// itself is the set combination of the google, cloudflare, and quad9 DNS-over-TLS
     /// services. This requires that the `hickory_resolver` crates has the `dns-over-native-tls`
     /// feature enabled.
-    /// 
+    ///
     /// ```
     /// hickory-resolver = {version="0.24.2", features=[ "dns-over-native-tls"]}
     /// ```
@@ -176,8 +187,7 @@ mod tests {
         let config = ResolverConfig::from_parts(None, Vec::new(), name_servers);
 
         // Construct a new Resolver with default configuration options
-        let resolver =
-            Resolver::tokio(config, ResolverOpts::default());
+        let resolver = Resolver::tokio(config, ResolverOpts::default());
 
         // Lookup the IP addresses associated with a name.
         let response = resolver.lookup_ip("www.example.com.").await.unwrap();
@@ -198,9 +208,9 @@ mod tests {
     }
 
     /// Try instantiating reqwest in a way that uses our resolver with DoH enabled
-    /// 
+    ///
     /// Plain DNS and DNS-over-TLS work for `hickory_resolver@v0.24.2`
-    /// 
+    ///
     /// ```rs
     /// fn new_resolver() -> Result<TokioAsyncResolver, HickoryDnsSystemConfError> {
     ///     let config = ResolverConfig::google_tls();
@@ -228,19 +238,17 @@ mod tests {
 
         println!("bytes: {resp:?}");
     }
-
 }
 
 #[cfg(test)]
-#[cfg(feature="disabled")]
+#[cfg(feature = "disabled")]
 mod tests_hickory_resolver_0_24_2 {
     use super::*;
 
-
     /// Try instantiating reqwest in a way that uses our resolver with DoH enabled
-    /// 
+    ///
     /// Plain DNS and DNS-over-TLS work for `hickory_resolver@v0.24.2`
-    /// 
+    ///
     /// ```rs
     /// fn new_resolver() -> Result<TokioAsyncResolver, HickoryDnsSystemConfError> {
     ///     let config = ResolverConfig::google_tls();
@@ -278,21 +286,21 @@ mod tests_hickory_resolver_0_24_2 {
     use hickory_resolver::Resolver;
 
     /// Attempt to use a set of resolvers using DNS-over-TLS
-    /// 
+    ///
     /// Performs a DNS lookup using a custom hickory-dns resolver. The resolver
     /// itself is the set combination of the google, cloudflare, and quad9 DNS-over-TLS
     /// services. This requires that the `hickory_resolver` crates has the `dns-over-native-tls`
     /// feature enabled (Note: the rustls and openssl implementations are broken for
     /// `hickory_resolver@v0.24.2`).
-    /// 
+    ///
     /// ```
     /// hickory-resolver = {version="0.24.2", features=[ "dns-over-native-tls"]}
     /// ```
-    /// 
+    ///
     /// The DNS-over-HTTPS implementation is also broken for `hickory_resolver@v0.24.2`.
-    /// 
+    ///
     /// ---
-    /// 
+    ///
     /// Questions:
     /// How are they selected from the set?
     /// * Does it try all of them in parallel?
