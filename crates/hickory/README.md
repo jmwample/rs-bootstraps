@@ -3,10 +3,13 @@
 
 ## To Investigate
 
-Is it possible to create a resolver type that collect and handles failures so a set resolver can send a wide spread and log failures (or capture to metrics)?
+Is it possible to create a resolver type that collects and handles failures so a set resolver can send a wide spread and log failures (or capture to metrics)?
+* It is relatively straightforward to capture the error from a resolution that fails for a combined resolver.  
+* It is still a little unclear how difficult capturing it would be to capture and record errors per request.
 
 If none of the concurrent requests succeed does it move on and try again using the others in the set?
 * is there an option for this type of behavior or would I have to implement this myself?
+* Turns out it is easy to implement this yourself.
 
 Why are rustls and openssl implementations broken?
 * is it me or is it the library?
