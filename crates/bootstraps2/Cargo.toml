@@ -1,15 +1,15 @@
 [package]
-name = "bootstraps2"
+name = "bootstraps"
 version = "0.1.0"
 edition = "2021"
 
 [features]
 default=["enable-cfg"]
 enable-cfg=[]
-require-cfg=["enable-cfg"]
 
 [build-dependencies]
 config-types = {path="../config-types"}
+uneval = "0.2.4"
 
 [dependencies]
 config-types = {path="../config-types"}
