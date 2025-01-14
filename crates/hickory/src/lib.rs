@@ -87,10 +87,8 @@ impl Iterator for SocketAddrs {
     }
 }
 
-/// Create a new resolver with the default configuration,
-/// which reads from `/etc/resolve.conf`. The options are
-/// overridden to look up for both IPv4 and IPv6 addresses
-/// to work with "happy eyeballs" algorithm.
+/// Create a new resolver with a custom DoT based configuration. The options are overridden to look
+/// up for both IPv4 and IPv6 addresses to work with "happy eyeballs" algorithm.
 fn new_resolver() -> Result<TokioResolver, HickoryDnsSystemConfError> {
     // let (config, mut opts) = hickory_resolver::system_conf::read_system_conf().map_err(HickoryDnsSystemConfError)?;
     let config = ResolverConfig::google_tls();
@@ -99,10 +97,9 @@ fn new_resolver() -> Result<TokioResolver, HickoryDnsSystemConfError> {
     Ok(TokioResolver::tokio(config, opts))
 }
 
-/// Create a new resolver with the default configuration,
-/// which reads from `/etc/resolve.conf`. The options are
-/// overridden to look up for both IPv4 and IPv6 addresses
-/// to work with "happy eyeballs" algorithm.
+/// Create a new resolver with the default configuration, which reads from `/etc/resolve.conf`. The
+/// options are overridden to look up for both IPv4 and IPv6 addresses to work with "happy eyeballs"
+/// algorithm.
 fn new_resolver_system() -> Result<TokioResolver, HickoryDnsSystemConfError> {
     let (config, mut opts) =
         hickory_resolver::system_conf::read_system_conf().map_err(HickoryDnsSystemConfError)?;
@@ -157,7 +154,6 @@ mod tests {
 
         println!("bytes: {resp:?}");
     }
-
 
     #[tokio::test]
     async fn reqwest_hickory_no_fallback() {

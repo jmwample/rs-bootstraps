@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 toml="0.8.19"
 serde={version="1.0.217", features = ["derive"]}
+humantime = "2.1.0"
+humantime-serde = "1.1.1"
+url = {version="2.5.4", features = ["serde"] }

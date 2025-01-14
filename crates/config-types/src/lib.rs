@@ -1,3 +1,6 @@
+
+use std::time::Duration;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -7,11 +10,27 @@ pub struct BaseConfig {
     pub keys: Keys,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Debug, Clone, Default, Deserialize, PartialEq, Serialize)]
 pub struct Keys {
     pub github: String,
     pub travis: Option<String>,
+    pub packet_type: PacketType,
+    pub endpoint: Vec<url::Url>,
+    #[serde(with = "humantime_serde")]
+    pub timeout: Duration,
+    pub recipient: Option<Recv>,
+    pub number: usize,
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Default, Serialize, Deserialize)]
+pub enum PacketType {
+    #[default]
+    Mix,
+    Raw,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Default, Serialize, Deserialize)]
+pub struct Recv {}
 
 impl std::str::FromStr for BaseConfig {
     type Err = toml::de::Error;
@@ -19,7 +38,7 @@ impl std::str::FromStr for BaseConfig {
         toml::from_str(s)
     }
 }
-
+ 
 impl ToString for BaseConfig {
     fn to_string(&self) -> String {
         toml::to_string(self).unwrap()
@@ -33,7 +52,12 @@ port = 4433
 [keys]
 github = "00000000000000000"
 travis = "11111111111111111"
+packet_type = "Mix"
+endpoint = ["https://example.com/api/"]
+timeout = "60s"
+number=10
 "#;
+
 
 #[cfg(test)]
 mod tests {
@@ -45,6 +69,10 @@ mod tests {
 [keys]
 github = "xxxxxxxxxxxxxxxxx"
 travis = "yyyyyyyyyyyyyyyyy"
+packet_type = "Mix"
+endpoint = ["https://example.com/api/"]
+timeout = "5s"
+number=100
 "#;
 
     #[test]
@@ -70,6 +98,8 @@ travis = "yyyyyyyyyyyyyyyyy"
             keys: Keys {
                 github: "xxxxxxxxxxxxxxxxx".to_string(),
                 travis: Some("yyyyyyyyyyyyyyyyy".to_string()),
+
+                ..Default::default()
             },
         };
 

@@ -4,3 +4,7 @@ ip = "127.0.0.1"
 [keys]
 github = "xxxxxxxxxxxxxxxxx"
 travis = "yyyyyyyyyyyyyyyyy"
+packet_type = "Mix"
+endpoint = ["https://example.com/api/"]
+timeout = "5s"
+number=100

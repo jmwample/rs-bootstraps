@@ -13,7 +13,7 @@ fn main() {
 const DEFAULT_CONFIG_PREAMBLE: &[u8] = br#"
 impl Default for Config {
     fn default() -> Self {
-        use config_types::Keys;
+        use config_types::{Keys, PacketType};
 
         Self("#;
 
