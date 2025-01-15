@@ -9,71 +9,31 @@ Is it possible to create a resolver type that collects and handles failures so a
 
 If none of the concurrent requests succeed does it move on and try again using the others in the set?
 * is there an option for this type of behavior or would I have to implement this myself?
-* Turns out it is easy to implement this yourself.
+* Answer: Turns out it is easy to implement this yourself.
 
 Why are rustls and openssl implementations broken?
 * is it me or is it the library?
-  * it seems like the library -- I tested on a separate computer with a different linux distro and received the same failures
+  * ~~it seems like the library. I tested on a separate computer with a different linux distro and received the same failures~~
+  * It was me (kind of) the hickory library [doesn't come with any default https
+    roots](https://github.com/hickory-dns/hickory-dns/issues/2066) so you have to add a feature
+    otherwise https just fails every time with an `UnknownIssuer` error.
 
 ## Variants
 
 ### DNS-over-TLS (DoT)
 
-Supported via the `rustls`, `native-tls`, `openssl` backends. Currently only the
-`native-tls` implementation works. 
+Supported via the `rustls`, `native-tls`, `openssl` backends. The
+`native-tls` implementation works out of the box.
 
-The other two implementations are broken for the presets. 
+The other two implementations are broken for the presets. THAT IS, they are broken until you enable one of the features that tells hickory what roots to use (`webpki-roots` or `native-certs`).
 
 ### DNS-over-HTTPS (DoH)
 
-`hickory` only supports this using `rustls` --- and it doesn't work. It fails with errors
-for cloudflare, google, and quad9 for crate versions `v0.25.0-alpha.4` and `v0.24.2` the latest
-and stable releases respectively. These all give the same errors on failure:
-
-```txt
- ResolveError { kind: Proto(ProtoError { kind: Io(Custom { kind: InvalidData, error: InvalidCertificate(UnknownIssuer) }) }) }
-
- or
-
- ResolveError { kind: Proto(ProtoError { kind: Io(Os { code: 101, kind: NetworkUnreachable, message: "Network is unreachable" }) }) }
-```
-
+`hickory` only supports this using `rustls`.
 
 ### DNS-over-HTTP3 (DoH3)
 
-The only server currently supported in the configurations provided by `hickory` is `google_h3()` and
-it is not currently working.
-
-```rs
-// requires that the `dns_over_h3` feature is enabled in `Cargo.toml`
-
-#[tokio::test]
-async fn dns_over_h3() {
-	// Construct a new Resolver with default configuration options
-	let resolver = Resolver::tokio(ResolverConfig::google_h3(), ResolverOpts::default());
-
-	// Lookup the IP addresses associated with a name.
-	let response = resolver.lookup_ip("www.example.com.").await.unwrap();
-
-	// There can be many addresses associated with the name,
-	//  this can return IPv4 and/or IPv6 addresses
-	let address = response.iter().next().expect("no addresses returned!");
-	let expected = [
-		IpAddr::V4(Ipv4Addr::new(93, 184, 215, 14)),
-		IpAddr::V6(Ipv6Addr::new(
-			0x2606, 0x2800, 0x21f, 0xcb07, 0x6820, 0x80da, 0xaf6b, 0x8b2c,
-		)),
-	];
-	assert!(expected.contains(&address));
-}
-```
-
-fails with error
-
-```txt
-ResolveError { kind: Proto(ProtoError { kind: Io(Custom { kind: Other, error: TransportError(Error { code: Code::crypto(30), frame: None, reason: "invalid peer certificate: UnknownIssuer" }) }) }) }
-```
-
+The only server currently supported in the configurations provided by `hickory` is `google_h3()`. Requires `dns-over-h3` and one of the pki roots feature flags.
 
 ### DNS-over-Quic (DoQ)
 

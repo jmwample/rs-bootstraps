@@ -7,8 +7,28 @@ use std::net::*;
 
 use hickory_resolver::Resolver;
 
+
+use std::env;
+use std::sync::Once;
+use std::str::FromStr;
+
+use tracing_subscriber::filter::LevelFilter;
+
+static SUBSCRIBER_INIT: Once = Once::new();
+
+pub fn init_subscriber() {
+	SUBSCRIBER_INIT.call_once(|| {
+		let level = env::var("RUST_LOG_LEVEL").unwrap_or("error".into());
+		let lf = LevelFilter::from_str(&level).unwrap();
+
+		tracing_subscriber::fmt().with_max_level(lf).init();
+	});
+}    
+
 #[tokio::test]
 async fn dns_over_https() {
+	init_subscriber();
+
 	// Construct a new Resolver with default configuration options
 	let resolver = Resolver::tokio(ResolverConfig::quad9_https(), ResolverOpts::default());
 
@@ -18,8 +38,10 @@ async fn dns_over_https() {
 	// There can be many addresses associated with the name,
 	//  this can return IPv4 and/or IPv6 addresses
 	let address = response.iter().next().expect("no addresses returned!");
+	println!("{ }", address);
 	let expected = [
 		IpAddr::V4(Ipv4Addr::new(93, 184, 215, 14)),
+		IpAddr::V4(Ipv4Addr::new(23, 201, 195, 209)),
 		IpAddr::V6(Ipv6Addr::new(
 			0x2606, 0x2800, 0x21f, 0xcb07, 0x6820, 0x80da, 0xaf6b, 0x8b2c,
 		)),
